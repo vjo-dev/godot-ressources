@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvmc61yqo7ys6"]
+
+[ext_resource type="Script" path="res://position.gd" id="1_accfy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwu5j"]
+size = Vector2(128, 128)
+
+[node name="Position" type="StaticBody2D" groups=["droppable"]]
+script = ExtResource("1_accfy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_wwu5j")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+color = Color(0.145098, 1, 1, 1)

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bfg2wbpm2xsyo"]
+
+[ext_resource type="PackedScene" uid="uid://cvmc61yqo7ys6" path="res://position.tscn" id="1_qv3f5"]
+[ext_resource type="PackedScene" uid="uid://bmipgvtkd5cuq" path="res://element.tscn" id="2_rct4q"]
+
+[node name="Main" type="Node"]
+
+[node name="Position" parent="." instance=ExtResource("1_qv3f5")]
+position = Vector2(185, 171)
+
+[node name="Position2" parent="." instance=ExtResource("1_qv3f5")]
+position = Vector2(862, 157)
+
+[node name="Position3" parent="." instance=ExtResource("1_qv3f5")]
+position = Vector2(575, 459)
+
+[node name="Element" parent="." instance=ExtResource("2_rct4q")]
+position = Vector2(532, 200)
