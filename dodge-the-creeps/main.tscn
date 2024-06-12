@@ -1,0 +1,108 @@
+[gd_scene load_steps=7 format=3 uid="uid://cqq3srukrkv35"]
+
+[ext_resource type="Texture2D" uid="uid://dk5aty7jx5fqm" path="res://art/background.jpg" id="2_kkt0q"]
+[ext_resource type="PackedScene" uid="uid://bm2x8qeohojd7" path="res://mob.tscn" id="2_y5i8o"]
+[ext_resource type="PackedScene" uid="uid://7jasicq7xbyf" path="res://player.tscn" id="3_1dsuj"]
+[ext_resource type="PackedScene" uid="uid://dibu31vprhjfn" path="res://hud.tscn" id="3_iwjd1"]
+
+[sub_resource type="GDScript" id="GDScript_0uk64"]
+script/source = "extends Node
+
+@export var mob_scene: PackedScene
+var score
+
+
+func game_over():
+	$ScoreTimer.stop()
+	$MobTimer.stop()
+	$HUD.show_game_over()
+
+
+func new_game():
+	score = 0
+	$HUD.update_score(score)
+	$HUD.show_message(\"Get Ready\")
+	$Player.start($StartPosition.position)
+	$StartTimer.start()
+	get_tree().call_group(\"mobs\", \"queue_free\")
+
+
+func _on_mob_timer_timeout():
+	# Create a new instance of the Mob scene.
+	var mob = mob_scene.instantiate()
+
+	# Choose a random location on Path2D.
+	var mob_spawn_location = get_node(\"MobPath/MobSpawnLocation\")
+	mob_spawn_location.progress_ratio = randf()
+
+	# Set the mob's direction perpendicular to the path direction.
+	var direction = mob_spawn_location.rotation + PI / 2
+
+	# Set the mob's position to a random location.
+	mob.position = mob_spawn_location.position
+	
+	# Add some randomness to the direction.
+	direction += randf_range(-PI / 4, PI / 4)
+	mob.rotation = direction
+
+	# Choose the velocity for the mob.
+	var velocity = Vector2(randf_range(150.0, 250.0), 0.0)
+	mob.linear_velocity = velocity.rotated(direction)
+
+	# Spawn the mob by adding it to the Main scene.
+	add_child(mob)
+
+
+func _on_score_timer_timeout():
+	score += 1
+	$HUD.update_score(score)
+
+
+func _on_start_timer_timeout():
+	$MobTimer.start()
+	$ScoreTimer.start()
+"
+
+[sub_resource type="Curve2D" id="Curve2D_abbcg"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 480, -2, 0, 0, 0, 0, 480, 721, 0, 0, 0, 0, -1, 723, 0, 0, 0, 0, -1, 0)
+}
+point_count = 5
+
+[node name="Main" type="Node"]
+script = SubResource("GDScript_0uk64")
+mob_scene = ExtResource("2_y5i8o")
+
+[node name="BackGround" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_kkt0q")
+
+[node name="Player" parent="." instance=ExtResource("3_1dsuj")]
+
+[node name="MobTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="ScoreTimer" type="Timer" parent="."]
+
+[node name="StartTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="StartPosition" type="Marker2D" parent="."]
+position = Vector2(240, 450)
+
+[node name="MobPath" type="Path2D" parent="."]
+curve = SubResource("Curve2D_abbcg")
+
+[node name="MobSpawnLocation" type="PathFollow2D" parent="MobPath"]
+position = Vector2(-1, 0)
+rotation = -0.00415798
+
+[node name="HUD" parent="." instance=ExtResource("3_iwjd1")]
+
+[connection signal="hit" from="Player" to="." method="game_over"]
+[connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
+[connection signal="timeout" from="ScoreTimer" to="." method="_on_score_timer_timeout"]
+[connection signal="timeout" from="StartTimer" to="." method="_on_start_timer_timeout"]
+[connection signal="start_game" from="HUD" to="." method="new_game"]
